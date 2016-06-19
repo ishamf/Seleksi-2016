@@ -3,6 +3,7 @@ import pandas as pd
 
 # Import matplotlib and Basemap
 import numpy as np
+import folium as fl
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from matplotlib.collections import LineCollection
@@ -14,7 +15,7 @@ from mpl_toolkits.basemap import Basemap
 
 #import shapefile
 
-def draw_portugal(destList, labels, islabeled):
+def draw_portugal(destList, labels, islabeled, output):
     """
     This functions draws and returns a map of Portugal, either just of the mainland or including the Azores and Madeira islands.
     """
@@ -28,10 +29,6 @@ def draw_portugal(destList, labels, islabeled):
         latitudeList.append(destList[i][0])
         longitudeList.append(destList[i][1])
 
-    """
-    raw_data = {'latitude': [41.17714571],
-            'longitude': [-8.609670271]}
-    """
     raw_data = {'latitude': latitudeList, 'longitude': longitudeList}
 
     df = pd.DataFrame(raw_data, columns = ['latitude', 'longitude'])
@@ -73,8 +70,29 @@ def draw_portugal(destList, labels, islabeled):
         for label, xpt, ypt, x_offset, y_offset in zip(labels, x, y, x_offsets, y_offsets):
             plt.text(xpt+x_offset, ypt+y_offset, label)
     
+    manager = plt.get_current_fig_manager()
+    manager.resize(*manager.window.maxsize())
+    fig.savefig(output, bbox_inches="tight")
     return m
 
-def drawMap(destList, labels, islabeled):
-    draw_portugal(destList, labels, islabeled)
+def drawMap(destList, labels, islabeled, output):
+    draw_portugal(destList, labels, islabeled, output)
     plt.show()
+    #Folium Map
+    """
+    mapTaxi = fl.Map(location=[41.1496100, -8.6109900], tiles='Stamen Toner', zoom_start=13)
+    markerList = []
+    for i in range(0, len(latitudeList)):
+        markerList.append(([latitudeList[i]], [longitudeList[i]]))
+    for x,y in markerList:
+        fl.Marker([x,y], popup='The Waterfront').add_to(mapTaxi)
+    fl.Marker([41.1496100, -8.6109900],
+              popup='The Waterfront'
+             ).add_to(mapTaxi)
+    mapTaxi.add_children(LatLngPopup)
+    mapTaxi.save("testMap.html")
+    """
+
+    """
+    raw_data = {'latitude': [41.17714571], 'longitude': [-8.609670271]}
+    """

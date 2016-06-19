@@ -19,8 +19,8 @@ def itemgetter(*items):
             return tuple(obj[item] for item in items)
     return g
 
-def destLocChart(numberOfPlace):
-	n_groups = 63
+def destLocChart(numberOfPlace, output):
+	n_groups = len(numberOfPlace)
 
 	#numberOfPlace = sorted(numberOfPlace)
 
@@ -33,7 +33,6 @@ def destLocChart(numberOfPlace):
 	data = sorted(data,key=itemgetter(1))
 
 	for element in data:
-		print(element[1])
 		horizontalData.append(element[0])
 		verticalData.append(element[2])
 	
@@ -67,9 +66,12 @@ def destLocChart(numberOfPlace):
 	                 error_kw=error_config,
 	                 label='Place')
 
-	plt.xlabel('Places')
-	plt.ylabel('Number of trips')
-	plt.title('Trip frequencies for each place')
+	frame1 = plt.gca()
+	frame1.axes.get_xaxis().set_ticks([])
+	frame1.axes.get_yaxis().set_ticks([])
+	plt.xlabel("Destination Places ID")
+	plt.ylabel("Trip's frequencies")
+	plt.title("Trip's frequencies for each destination place on meta data")
 	#plt.xticks(index + bar_width, int(rects1.get_x())
 	#plt.xticks(index + bar_width, tuple(indeksBawah))
 	plt.legend()
@@ -77,7 +79,11 @@ def destLocChart(numberOfPlace):
 	plt.tight_layout()
 	autolabel1(rects1)
 	autolabel2(rects1)
+	manager = plt.get_current_fig_manager()
+	manager.resize(*manager.window.maxsize())
 	plt.show()
+
+	fig.savefig(output, bbox_inches="tight")  
 
 def alignment(a, h):
 	if (a%2==0):

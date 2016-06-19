@@ -40,13 +40,8 @@ initializeNumberOfPlace()
 df = pd.read_hdf(sys.argv[1])
 #df = df.iloc[df.count(level=0).lat.cumsum() - 1].reset_index().drop('level_1', axis=1).set_index('level_0')
 df = df.reset_index().groupby('level_0', as_index=False).last().drop('level_1', axis=1).set_index('level_0')
+df.rename(columns={'level_0': 'TRIP_ID', 'lat': 'Latitude', 'lon':'Longitude'}, inplace=True)
 
-print(df.iloc[0][0])
-print(df.iloc[0][1])
-print(df.iloc[1][0])
-print(df.iloc[1][1])
-print(df.iloc[2][0])
-print(df.iloc[2][1])
 #df = df.sample(sys.argv[2])
 
 for i in range(0, len(df)):
@@ -58,9 +53,9 @@ for i in range(0, len(df)):
 	numberOfPlace2[int(place[0])] = [numberOfPlace2[int(place[0])][0],  numberOfPlace2[int(place[0])][1]+ 1]
 	destPointList.add(destinationTuple)
 
-bc.destLocChart(numberOfPlace2)
-#bp.drawMap(destPointList, labels, False)
+bc.destLocChart(numberOfPlace2, sys.argv[3])
+bp.drawMap(destPointList, labels, False, sys.argv[4])
 
-df.to_csv("result_panda.csv")
+df.to_csv(sys.argv[2])
 	
 #print(df.iloc[0][0])
