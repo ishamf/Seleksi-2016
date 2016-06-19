@@ -35,6 +35,7 @@ def destLocChart(numberOfPlace, output):
 	for element in data:
 		horizontalData.append(element[0])
 		verticalData.append(element[2])
+		print(element[1])
 	
 	"""
 	for i in range(1,64):
@@ -69,9 +70,9 @@ def destLocChart(numberOfPlace, output):
 	frame1 = plt.gca()
 	frame1.axes.get_xaxis().set_ticks([])
 	frame1.axes.get_yaxis().set_ticks([])
-	plt.xlabel("Destination Places ID")
+	plt.xlabel("Places ID")
 	plt.ylabel("Trip's frequencies")
-	plt.title("Trip's frequencies for each destination place on meta data")
+	plt.title("Trip's frequencies for each place on meta data")
 	#plt.xticks(index + bar_width, int(rects1.get_x())
 	#plt.xticks(index + bar_width, tuple(indeksBawah))
 	plt.legend()
@@ -101,7 +102,7 @@ def autolabel1(rects):
                 #'%d' % int(height),
                 ha='center', va='bottom')
         """
-        ax.text(rect.get_x() + rect.get_width()/2., height + 3.5,
+        ax.text(rect.get_x() + rect.get_width()/2., height,# 1.05*height,#height + 3.5,
         		#indeksBawah[int(rect.get_x())],
         		#horizontalData[int(rect.get_x())],
                 '%d' % int(height),
@@ -117,7 +118,7 @@ def autolabel2(rects):
                 #'%d' % int(height),
                 ha='center', va='bottom')
         """
-        ax.text(rect.get_x() + rect.get_width()/2., 2,
+        ax.text(rect.get_x() + rect.get_width()/2., 0,#0.05*height,#2,
         		#indeksBawah[int(rect.get_x())],
         		horizontalData[int(rect.get_x())],
                 #'%d' % int(height),
