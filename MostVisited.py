@@ -23,12 +23,14 @@ for i in range(0,5):
 	lon = frequent.index[i][1]
 	coordinate = (lat,lon)
 	destPointList.append(coordinate)
-	labels.append(cp.getPlace(coordinate))
+	labels.append(cp.getPlace(coordinate)[1])
 
 labels = tuple(labels)
 bp.drawMap(destPointList, labels, True)
 for i in range(0,5):
 	print(destPointList[i])
+
+frequent.to_csv("mostVisited.csv")
 
 """
 destPointList.add()

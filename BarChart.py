@@ -9,27 +9,40 @@ horizontalData = []
 verticalData = []
 indeksBawah = []
 
+def itemgetter(*items):
+    if len(items) == 1:
+        item = items[0]
+        def g(obj):
+            return obj[item]
+    else:
+        def g(obj):
+            return tuple(obj[item] for item in items)
+    return g
+
 def destLocChart(numberOfPlace):
 	n_groups = 63
 
 	#numberOfPlace = sorted(numberOfPlace)
-	"""
+
 	data = []
 	for keys in numberOfPlace.keys():
-		data.append((keys, numberOfPlace[keys]))
+		data.append((keys, numberOfPlace[keys][0], numberOfPlace[keys][1]))
 		#horizontalData.append(keys)
 		#verticalData.append(numberOfPlace[keys])
-	"""
 
-	"""
-	#data.sort()
+	data = sorted(data,key=itemgetter(1))
+
 	for element in data:
+		print(element[1])
 		horizontalData.append(element[0])
-		verticalData.append(element[1])
+		verticalData.append(element[2])
+	
 	"""
 	for i in range(1,64):
 		horizontalData.append(i)
 		verticalData.append(numberOfPlace[i])
+	"""
+
 	means_men = tuple(verticalData)
 	#std_men = tuple(verticalData)
 
@@ -41,14 +54,8 @@ def destLocChart(numberOfPlace):
 		else:
 			indeksBawah.append(i-1)
 
-	"""
-	std_men = (2, 3, 4, 1, 2)
-	means_women = (25, 32, 34, 20, 25)
-	std_women = (3, 5, 2, 3, 3)
-	"""
-
 	index = np.arange(n_groups)
-	bar_width = 0.6
+	bar_width = 0.7
 
 	opacity = 0.4
 	error_config = {'ecolor': '0.3'}
@@ -58,16 +65,7 @@ def destLocChart(numberOfPlace):
 	                 color='b',
 	                 #yerr=std_men,
 	                 error_kw=error_config,
-	                 label='Men')
-
-	"""
-	rects2 = plt.bar(index + bar_width, means_women, bar_width,
-	                 alpha=opacity,
-	                 color='r',
-	                 yerr=std_women,
-	                 error_kw=error_config,
-	                 label='Women')
-	"""
+	                 label='Place')
 
 	plt.xlabel('Places')
 	plt.ylabel('Number of trips')
@@ -78,7 +76,7 @@ def destLocChart(numberOfPlace):
 
 	plt.tight_layout()
 	autolabel1(rects1)
-	#autolabel2(rects1)
+	autolabel2(rects1)
 	plt.show()
 
 def alignment(a, h):
@@ -113,8 +111,21 @@ def autolabel2(rects):
                 #'%d' % int(height),
                 ha='center', va='bottom')
         """
-        ax.text(rect.get_x() + rect.get_width()/2., -3.5,
+        ax.text(rect.get_x() + rect.get_width()/2., 2,
         		#indeksBawah[int(rect.get_x())],
         		horizontalData[int(rect.get_x())],
                 #'%d' % int(height),
                 ha='center', va='center')
+        """
+		std_men = (2, 3, 4, 1, 2)
+		means_women = (25, 32, 34, 20, 25)
+		std_women = (3, 5, 2, 3, 3)	
+		rects2 = plt.bar(index + bar_width, means_women, bar_width,
+		                 alpha=opacity,
+		                 color='r',
+		                 yerr=std_women,
+		                 error_kw=error_config,
+		                 label='Women')
+		"""
+
+	

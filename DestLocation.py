@@ -17,6 +17,8 @@ numberOfPlace = []
 numberOfPlace2 = {}
 #numberOfPlace = {}
 
+labels = []
+
 def initializeNumberOfPlace():
     with open('metaData_taxistandsID_name_GPSlocation.csv') as f:
         for row in csv.reader(f):
@@ -28,7 +30,7 @@ def initializeNumberOfPlace():
 
 def processRow(row):
     x = row['POLYLINE']
-    if len(x)>1:
+    if len(x)>0:
         x = np.array(x, ndmin=2)
         #data = process_trip(x[0, :], row['TIMESTAMP'])
         #data += [x[-1,1], x[-1,0], len(x)]
@@ -75,8 +77,9 @@ df = df.join(ds)
 # clean up tracks`
 #df = df[(df['Destination Latitude'] != -1) & (df['MISSING_DATA']==False)]
 #df.drop(['MISSING_DATA'], axis=1, inplace=True)
-df.to_csv('destLocation_train.csv', index=False)
+df.to_csv('result_normal.csv', index=False)
 
+"""
 print('reading test data ...')
 df = pd.read_csv('test.csv', converters={'POLYLINE': lambda x: json.loads(x)})
 
@@ -88,6 +91,7 @@ ds.columns = ['Destination Latitude','Destination Longitude','Place ID','Place N
 
 df = df.join(ds)
 df.to_csv('destLocation_test.csv', index=False)
+"""
 
 print('Done in %.1f sec.' % (time.time()-t0))
 
@@ -104,8 +108,7 @@ print(numberOfPlace2["Alameda"])
 print(numberOfPlace2["Aldoar"])
 
 bc.destLocChart(numberOfPlace)
-
-#bp.drawMap(destPointList)
+bp.drawMap(destPointList, labels, False)
 
 """
 

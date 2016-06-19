@@ -70,8 +70,8 @@ def draw_portugal(destList, labels, islabeled):
         x_offsets = [0]*len(labels)
         y_offsets = [0]*len(labels)
  
-    for label, xpt, ypt, x_offset, y_offset in zip(labels, x, y, x_offsets, y_offsets):
-        plt.text(xpt+x_offset, ypt+y_offset, label)
+        for label, xpt, ypt, x_offset, y_offset in zip(labels, x, y, x_offsets, y_offsets):
+            plt.text(xpt+x_offset, ypt+y_offset, label)
     
     return m
 
