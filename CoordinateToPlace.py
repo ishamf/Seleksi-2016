@@ -21,6 +21,6 @@ def getPlace(a):
 			selisih = temp
 			placeName = b[i][2]
 			placeId = b[i][3]
-	place = (placeId, placeName)
+	place = (int(placeId), placeName)
 	return place
 	#return numberOfPlace

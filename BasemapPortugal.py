@@ -14,7 +14,7 @@ from mpl_toolkits.basemap import Basemap
 
 #import shapefile
 
-def draw_portugal(destList):
+def draw_portugal(destList, labels, islabeled):
     """
     This functions draws and returns a map of Portugal, either just of the mainland or including the Azores and Madeira islands.
     """
@@ -64,9 +64,17 @@ def draw_portugal(destList):
 
     # Plot them using round markers of size 6
     m.plot(x, y, 'ro', markersize=3)
+
+    if (islabeled):
+        labels = labels
+        x_offsets = [0]*len(labels)
+        y_offsets = [0]*len(labels)
+ 
+    for label, xpt, ypt, x_offset, y_offset in zip(labels, x, y, x_offsets, y_offsets):
+        plt.text(xpt+x_offset, ypt+y_offset, label)
     
     return m
 
-def drawMap(destList):
-    draw_portugal(destList)
+def drawMap(destList, labels, islabeled):
+    draw_portugal(destList, labels, islabeled)
     plt.show()

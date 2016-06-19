@@ -1,4 +1,4 @@
-
+import sys
 import time
 import json
 import csv
@@ -13,15 +13,18 @@ import BarChart as bc
 destPointList = []
 destPointList = set(destPointList)
 
-#numberOfPlace = []
-numberOfPlace = {}
+numberOfPlace = []
+numberOfPlace2 = {}
+#numberOfPlace = {}
 
 def initializeNumberOfPlace():
     with open('metaData_taxistandsID_name_GPSlocation.csv') as f:
         for row in csv.reader(f):
-            if (row[0]!="ID"):
+            #if (row[0]!="ID"):
                 #numberOfPlace[row[0]] = 0
-                numberOfPlace[row[1]] = 0
+                #numberOfPlace[row[0]] = 0
+            numberOfPlace.append(0)
+            numberOfPlace2[row[1]] = 0
 
 def processRow(row):
     x = row['POLYLINE']
@@ -31,15 +34,16 @@ def processRow(row):
         #data += [x[-1,1], x[-1,0], len(x)]
         destinationTuple = (x[-1,1], x[-1,0])
         place = gp.getPlace(destinationTuple)
-        #numberOfPlace[place[0]] = numberOfPlace[place[0]] + 1
-        numberOfPlace[place[1]] = numberOfPlace[place[1]] + 1
+        numberOfPlace[place[0]] = numberOfPlace[place[0]] + 1
+        numberOfPlace2[place[1]] = numberOfPlace2[place[1]] + 1
+        #numberOfPlace[place[1]] = numberOfPlace[place[1]] + 1
         #numberOfPlace.append(place[1])
         data = [x[-1,1], x[-1,0], place[0], place[1], len(x)]
         #data = [x[-1,1], x[-1,0], place[0], len(x)]
         destPointList.add((x[-1,1], x[-1,0]))
     else:
-        data = [-1]*4
-        data += [len(x)]
+        data = [-1,-1,-1,-1, len(x)]
+        print("len = 1 atau 0")
     return pd.Series(np.array(data))
     #return pd.Series(np.array(data, dtype=float))
 
@@ -51,7 +55,7 @@ gp.initializePlaceList()
 initializeNumberOfPlace()
 
 print('reading training data ...')
-df = pd.read_csv('train.csv', converters={'POLYLINE': lambda x: json.loads(x)})#, nrows=100)
+df = pd.read_csv(sys.argv[1], converters={'POLYLINE': lambda x: json.loads(x)})#, nrows=100)
 
 print('preparing train data ...')
 ds = df.apply(processRow, axis=1)
@@ -69,8 +73,8 @@ df.drop(['POLYLINE','TIMESTAMP','TRIP_ID','DAY_TYPE','ORIGIN_CALL','ORIGIN_STAND
 df = df.join(ds)
 
 # clean up tracks`
-df = df[(df['Destination Latitude'] != -1) & (df['MISSING_DATA']==False)]
-df.drop(['MISSING_DATA'], axis=1, inplace=True)
+#df = df[(df['Destination Latitude'] != -1) & (df['MISSING_DATA']==False)]
+#df.drop(['MISSING_DATA'], axis=1, inplace=True)
 df.to_csv('destLocation_train.csv', index=False)
 
 print('reading test data ...')
@@ -95,8 +99,13 @@ print("Jumlah : ")
 print(sum)
 """
 
+print(numberOfPlace2["Agra"])
+print(numberOfPlace2["Alameda"])
+print(numberOfPlace2["Aldoar"])
+
 bc.destLocChart(numberOfPlace)
-bp.drawMap(destPointList)
+
+#bp.drawMap(destPointList)
 
 """
 

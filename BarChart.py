@@ -13,16 +13,23 @@ def destLocChart(numberOfPlace):
 	n_groups = 63
 
 	#numberOfPlace = sorted(numberOfPlace)
+	"""
 	data = []
 	for keys in numberOfPlace.keys():
 		data.append((keys, numberOfPlace[keys]))
 		#horizontalData.append(keys)
 		#verticalData.append(numberOfPlace[keys])
+	"""
 
-	data.sort()
+	"""
+	#data.sort()
 	for element in data:
 		horizontalData.append(element[0])
 		verticalData.append(element[1])
+	"""
+	for i in range(1,64):
+		horizontalData.append(i)
+		verticalData.append(numberOfPlace[i])
 	means_men = tuple(verticalData)
 	#std_men = tuple(verticalData)
 
