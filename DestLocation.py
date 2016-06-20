@@ -1,3 +1,5 @@
+#Author : Geraldi Dzakwan 13514065
+
 #File yang outputnya adalah csv file berisi informasi lokasi terakhir setiap trip
 #Akan ada pula visualisasi dengan chart dan map
 

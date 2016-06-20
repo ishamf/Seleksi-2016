@@ -1,3 +1,5 @@
+#Author : Geraldi Dzakwan 13514065
+
 #File yang outputnya adalah csv file berisi informasi beberapa lokasi yang paling
 #sering disinggahi saat perjalanan (sesuai dengan konfirmasi dari asisten bahwa seluruh
 #titik lokasi harus diperhitungkan)

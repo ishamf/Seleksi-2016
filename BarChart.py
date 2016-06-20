@@ -1,3 +1,5 @@
+#Author : Geraldi Dzakwan 13514065
+
 #File untuk visualisasi data dengan grafik batang
 #Memerlukan library numpy dan matplotlib
 import numpy as np

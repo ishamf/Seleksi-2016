@@ -1,3 +1,5 @@
+#Author : Geraldi Dzakwan 13514065
+
 #File untuk konversi koordinat ke tempat terdekat yang ada pada meta data
 #Memerlukan library csv
 import csv
