@@ -5,7 +5,6 @@ import pandas as pd
 
 # Import library numpy, matplotlib, dan basemap
 import numpy as np
-import folium as fl
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from matplotlib.collections import LineCollection
