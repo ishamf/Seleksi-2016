@@ -1,14 +1,16 @@
-"""
-Bar chart demo with pairs of bars grouped for easy comparison.
-"""
+#File untuk visualisasi data dengan grafik batang
+#Memerlukan library numpy dan matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 
+#Buat figure dan axis dari library matplotlib
 fig, ax = plt.subplots()
+#List untuk menyimpan data pada sumbu x dan sumbu y
 horizontalData = []
 verticalData = []
-indeksBawah = []
 
+#Fungsi untuk mendapatkan sebuah item tertentu pada tuple
+#Digunakan nanti sebagai dasar sorting tuple
 def itemgetter(*items):
     if len(items) == 1:
         item = items[0]
@@ -19,120 +21,88 @@ def itemgetter(*items):
             return tuple(obj[item] for item in items)
     return g
 
+#Fungsi yang menampilkan grafik batang sesuai data input
 def destLocChart(numberOfPlace, output):
+	#Jumlah data
 	n_groups = len(numberOfPlace)
 
-	#numberOfPlace = sorted(numberOfPlace)
-
+	#Ubah input dictionary menjadi list of tuple
 	data = []
 	for keys in numberOfPlace.keys():
 		data.append((keys, numberOfPlace[keys][0], numberOfPlace[keys][1]))
-		#horizontalData.append(keys)
-		#verticalData.append(numberOfPlace[keys])
 
+	#Melakukan sorting berdasarkan jarak lokasi terhadap city center
 	data = sorted(data,key=itemgetter(1))
 
+	#Setelah di-sort, masukkan ke data untuk sumbu x dan sumbu y
 	for element in data:
 		horizontalData.append(element[0])
 		verticalData.append(element[2])
-		print(element[1])
-	
-	"""
-	for i in range(1,64):
-		horizontalData.append(i)
-		verticalData.append(numberOfPlace[i])
-	"""
 
-	means_men = tuple(verticalData)
-	#std_men = tuple(verticalData)
+	#Membuat tuple data sumbu y
+	means = tuple(verticalData)
 
-	for i in range(1,64):
-		if (i<55):
-			indeksBawah.append(i)
-		elif (i==55):
-			indeksBawah.append(63)
-		else:
-			indeksBawah.append(i-1)
-
+	#Setting tampilan/properties grafik batang, 
+	#seperti ketebalan bar, warna, dan lain-lain
 	index = np.arange(n_groups)
 	bar_width = 0.7
-
 	opacity = 0.4
 	error_config = {'ecolor': '0.3'}
 
-	rects1 = plt.bar(index, means_men, bar_width,
+	#Membuat grafik batang berdasarkan data2 yang sudah didefinisikan sebelumnya
+	rects1 = plt.bar(index, means, bar_width,
 	                 alpha=opacity,
 	                 color='b',
-	                 #yerr=std_men,
 	                 error_kw=error_config,
 	                 label='Place')
 
+	#Menghilangkan tampilan skala pada sumbu x dan sumbu y
 	frame1 = plt.gca()
 	frame1.axes.get_xaxis().set_ticks([])
 	frame1.axes.get_yaxis().set_ticks([])
+
+	#Menampilkan judul, keterangan data sumbu x dan sumbu y beserta legenda
 	plt.xlabel("Places ID")
 	plt.ylabel("Trip's frequencies")
 	plt.title("Trip's frequencies for each place on meta data")
-	#plt.xticks(index + bar_width, int(rects1.get_x())
-	#plt.xticks(index + bar_width, tuple(indeksBawah))
 	plt.legend()
-
 	plt.tight_layout()
+
+	#Memberi label pada setiap bar
+	#Label pada sumbu x menyatakan placeID
+	#Label pada sumbu x menyatakan frekuensi tempat tsb dikunjungi
 	autolabel1(rects1)
 	autolabel2(rects1)
+
+	#Tampilkan dengan ukuran layar maksimum
 	manager = plt.get_current_fig_manager()
 	manager.resize(*manager.window.maxsize())
+	#Tampilkan grafik
 	plt.show()
 
+	#Simpan grafik sesuai nama input (misalnya dalam file .png)
 	fig.savefig(output, bbox_inches="tight")  
 
-def alignment(a, h):
-	if (a%2==0):
-		return h
-	else:
-		return 0
-
+#Fungsi untuk memberi label bar pada sumbu y, yakni frekuensi dikunjungi
 def autolabel1(rects):
-    # attach some text labels
+	#Iterasi setiap bar
     for rect in rects:
+    	#Ambil ketinggian
         height = rect.get_height()
-        """
+        #Tampilkan nilai frekuensi pada ketinggian bar masing-masing
         ax.text(rect.get_x() + rect.get_width()/2., height,
-        		horizontalData[int(rect.get_x())],
-                #'%d' % int(height),
-                ha='center', va='bottom')
-        """
-        ax.text(rect.get_x() + rect.get_width()/2., height,# 1.05*height,#height + 3.5,
-        		#indeksBawah[int(rect.get_x())],
-        		#horizontalData[int(rect.get_x())],
                 '%d' % int(height),
                 ha='center', va='center')
 
+#Fungsi untuk memberi label bar pada sumbu x, yakni placeID
 def autolabel2(rects):
-    # attach some text labels
+	#Iterasi setiap bar
     for rect in rects:
+    	#Ambil ketinggian
         height = rect.get_height()
-        """
-        ax.text(rect.get_x() + rect.get_width()/2., height,
+        #Tampilkan placeID tepat pada garis sumbu x
+        ax.text(rect.get_x() + rect.get_width()/2., 0,
         		horizontalData[int(rect.get_x())],
-                #'%d' % int(height),
-                ha='center', va='bottom')
-        """
-        ax.text(rect.get_x() + rect.get_width()/2., 0,#0.05*height,#2,
-        		#indeksBawah[int(rect.get_x())],
-        		horizontalData[int(rect.get_x())],
-                #'%d' % int(height),
                 ha='center', va='center')
-        """
-		std_men = (2, 3, 4, 1, 2)
-		means_women = (25, 32, 34, 20, 25)
-		std_women = (3, 5, 2, 3, 3)	
-		rects2 = plt.bar(index + bar_width, means_women, bar_width,
-		                 alpha=opacity,
-		                 color='r',
-		                 yerr=std_women,
-		                 error_kw=error_config,
-		                 label='Women')
-		"""
 
 	

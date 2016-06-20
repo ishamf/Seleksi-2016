@@ -1,145 +1,117 @@
-import sys
-import time
-import json
-import csv
-import numpy as np
+#File yang outputnya adalah csv file berisi informasi lokasi terakhir setiap trip
+#Akan ada pula visualisasi dengan chart dan map
+
+#Cara run :
+#python DestLocation.py file_input(.h5) file_output(.csv) chart_output(png) map_output(png) jumlah_sampel
+
+#Import panda, system, csv frame, dan tiga modul lain yang sudah dibuat sebelumnya
 import pandas as pd
-import CoordinateToPlace as gp
-import BasemapPortugal as bp
-import BarChart as bc
+import sys
+import csv
+import CoordinateToPlace as gp #Konversi koordinat ke tempat
+import BasemapPortugal as bp #Gambar map
+import BarChart as bc #Gambar chart
 
-#from utils import haversineKaggle, heading, CITY_CENTER
-
+#List lokasi terakhir (destination point)
 destPointList = []
+#Convert ke set agar semua titik unik
+#List ini nantinya akan di plot di map sehingga tidak perlu dua titik dengan koordinat sama
 destPointList = set(destPointList)
 
-numberOfPlace = []
+#Dictionary untuk jumlah kunjungan setiap tempat dengan key adalah nama tempat
 numberOfPlace2 = {}
-#numberOfPlace = {}
 
-labels = []
-
-def initializeNumberOfPlace():
-    with open('metaData_taxistandsID_name_GPSlocation.csv') as f:
-        for row in csv.reader(f):
-            #if (row[0]!="ID"):
-                #numberOfPlace[row[0]] = 0
-                #numberOfPlace[row[0]] = 0
-            numberOfPlace.append(0)
-            numberOfPlace2[row[1]] = 0
-
-def processRow(row):
-    x = row['POLYLINE']
-    if len(x)>0:
-        x = np.array(x, ndmin=2)
-        #data = process_trip(x[0, :], row['TIMESTAMP'])
-        #data += [x[-1,1], x[-1,0], len(x)]
-        destinationTuple = (x[-1,1], x[-1,0])
-        place = gp.getPlace(destinationTuple)
-        numberOfPlace[place[0]] = numberOfPlace[place[0]] + 1
-        numberOfPlace2[place[1]] = numberOfPlace2[place[1]] + 1
-        #numberOfPlace[place[1]] = numberOfPlace[place[1]] + 1
-        #numberOfPlace.append(place[1])
-        data = [x[-1,1], x[-1,0], place[0], place[1], len(x)]
-        #data = [x[-1,1], x[-1,0], place[0], len(x)]
-        destPointList.add((x[-1,1], x[-1,0]))
-    else:
-        data = [-1,-1,-1,-1, len(x)]
-        print("len = 1 atau 0")
-    return pd.Series(np.array(data))
-    #return pd.Series(np.array(data, dtype=float))
-
-t0 = time.time()
-"""
-FEATURES = ['wday','hour','xs','ys','d_st','heading']
-"""
+#Inisialisasi list tempat dengan meta data
 gp.initializePlaceList()
+
+#Fungsi untuk memproses koordinat pada data frame dan kemudian 
+#menambahkan kolom baru pada data frame yang berisi ID tempat bersesuaian
+def processPlaceID(row):
+    #Ambil x dari kolom latitude
+    x = row['Latitude']
+    #Ambil y dari kolom longitude
+    y = row['Longitude']
+    #Tentukan placeID
+    placeID = gp.getPlace((x,y))[0]
+    return placeID
+
+#Fungsi untuk memproses koordinat pada data frame dan kemudian 
+#menambahkan kolom baru pada data frame yang berisi nama tempat bersesuaian
+def processPlaceName(row):
+    #Ambil x dari kolom latitude
+    x = row['Latitude']
+    #Ambil y dari kolom longitude
+    y = row['Longitude']
+    #Tentukan placeName
+    placeName = gp.getPlace((x,y))[1]
+    return placeName
+
+#Fungsi untuk inisialisasi dictionary numberOfPlace2
+def initializeNumberOfPlace():
+    #Buka file meta data
+    with open('metaData_taxistandsID_name_GPSlocation.csv') as f:
+        #Baca setiap baris
+        for row in csv.reader(f):
+            #Baris header tidak perlu dibaca
+            if (row[0]!="ID"):
+            	#Ambil koordinat x dan y dari kolom ke-2 dan 3
+            	x = float(row[2])
+            	y = float(row[3])
+            	#Inisialisasi key dengan place ID
+                #Valuenya adalah tuple jarak dari pusat kota dan frekuensi disinggahi
+            	numberOfPlace2[int(row[0])] = [gp.distance_from_city_center(x,y), 0]
+
+#Panggil fungsi inisialisasi di atas
 initializeNumberOfPlace()
 
-print('reading training data ...')
-df = pd.read_csv(sys.argv[1], converters={'POLYLINE': lambda x: json.loads(x)})#, nrows=100)
+#Baca file h5 dan masukkan ke data frame
+df = pd.read_hdf(sys.argv[1])
 
-print('preparing train data ...')
-ds = df.apply(processRow, axis=1)
-"""
-ds.columns = FEATURES + ['Destination Latitude','Destination Longitude','Number Of Points']
-keep_col = ['Destination Latitude','Destination Longitude', 'Number Of Points']
-ds = ds[keep_col]
-"""
-ds.columns = ['Destination Latitude','Destination Longitude','Place ID','Place Name', 'Number of Places Passed By']
-#ds.columns = ['Destination Latitude','Destination Longitude','Place ID', 'Number of Places Passed By']
-"""
-df.drop(['POLYLINE','TIMESTAMP','TRIP_ID','DAY_TYPE','ORIGIN_CALL','ORIGIN_STAND'], 
-        axis=1, inplace=True)
-"""
-df = df.join(ds)
+#Jika input jumlah sampel tidak 0 dan kurang dari total data,
+#ambil sejumlah sampel tersebut dari data frame
+jumlahSampel = int(sys.argv[5])
+if ((jumlahSampel!=0) and (jumlahSampel<len(df))):
+    df = df.sample(jumlahSampel)
 
-# clean up tracks`
-#df = df[(df['Destination Latitude'] != -1) & (df['MISSING_DATA']==False)]
-#df.drop(['MISSING_DATA'], axis=1, inplace=True)
-df.to_csv('result_normal.csv', index=False)
+#Ambil lokasi-lokasi terakhir dari data frame dan timpa isi data frame dengan 
+#detail lokasi terakhir, yakni TRIP_ID, Latitude, dan Longitude
+df = df.reset_index().groupby('level_0', as_index=False).last().drop('level_1', axis=1).set_index('level_0')
 
-"""
-print('reading test data ...')
-df = pd.read_csv('test.csv', converters={'POLYLINE': lambda x: json.loads(x)})
+#Renaming kolom-kolom
+df.rename(columns={'level_0': 'TRIP_ID', 'lat': 'Latitude', 'lon':'Longitude'}, inplace=True)
 
-print('preparing test data ...')
-ds = df.apply(processRow, axis=1)
+#Buat series yang menampung ID tempat dari masing-masing koordinat pada setiap row
+series_ID = pd.Series(df.apply(processPlaceID, axis=1))
+#Buat series yang menampung nama tempat dari masing-masing koordinat pada setiap row
+series_Name = pd.Series(df.apply(processPlaceName, axis=1))
 
-ds.columns = ['Destination Latitude','Destination Longitude','Place ID','Place Name', 'Number of Places Passed By']
-#ds.columns = ['Destination Latitude','Destination Longitude','Place ID', 'Number of Places Passed By']
+#Buat kolom baru PlaceID pada data frame, isi dengan series_ID
+df['PlaceID'] = series_ID
+#Buat kolom baru PlaceName pada data frame, isi dengan series_Name
+df['PlaceName'] = series_Name
 
-df = df.join(ds)
-df.to_csv('destLocation_test.csv', index=False)
-"""
+#Output data frame ke csv
+df.to_csv(sys.argv[2])
 
-print('Done in %.1f sec.' % (time.time()-t0))
+#Iterasi seluruh elemen data frame
+for i in range(0, len(df)):
+    #Buat tuple koordinat dari setiap baris data frame
+	destinationTuple = (df.iloc[i][0], df.iloc[i][1])
+    #Tentukan tempat yang bersesuaian
+	place = gp.getPlace(destinationTuple)
+	#Update isi dictionary sesuai dengan ID tempat yang didapat
+	numberOfPlace2[int(place[0])] = [numberOfPlace2[int(place[0])][0],  numberOfPlace2[int(place[0])][1]+ 1]
+    #Tambahkan koordinat ke list destPoint untuk nantinya di plot ke map
+	destPointList.add(destinationTuple)
 
-"""
-sum = 0
-for keys in numberOfPlace.keys():
-    sum += numberOfPlace[keys]
-print("Jumlah : ")
-print(sum)
-"""
+#Menggambar grafik batang dan menyimpannya dalam bentuk file image
+bc.destLocChart(numberOfPlace2, sys.argv[3])
 
-print(numberOfPlace2["Agra"])
-print(numberOfPlace2["Alameda"])
-print(numberOfPlace2["Aldoar"])
+#List dummy hanya untuk memenuhi argumen
+labels = []
 
-bc.destLocChart(numberOfPlace)
-bp.drawMap(destPointList, labels, False)
-
-"""
-
-def process_row_test(row):
-    x = row['POLYLINE']
-    x = np.array(x, ndmin=2)
-    data = process_trip(x[0, :], row['TIMESTAMP'])
-    return pd.Series(np.array(data, dtype=float))
-
-def process_trip(x, start_time):
-    tt = time.localtime(start_time)
-    data = [tt.tm_wday, tt.tm_hour]
-    # distance from the center till cutting point
-    d_st = haversineKaggle(x,  CITY_CENTER)
-    head = heading(x,  CITY_CENTER[0])
-    data += [x[0], x[1], d_st, head]
-    return data
-
-"""
-
-"""
-print('preparing test data ...')
-ds = df.apply(process_row_test, axis=1)
-ds.columns = FEATURES
-df.drop(['POLYLINE','TIMESTAMP','DAY_TYPE','ORIGIN_CALL','ORIGIN_STAND',
-         'MISSING_DATA'], axis=1, inplace=True)
-df = df.join(ds)
-df.to_csv('test_Lokasi_Terakhir_1.csv', index=False)
-
-df['TAXI_ID'] -= np.min(df['TAXI_ID'])   # makes csv smaller -> ids in [0, 980]
-"""
-
-
+#Menggambar hasil plot pada map dan menyimpannya dalam bentuk file image
+#Karena jumlah titik yang diplot sangat banyak, 
+#maka setiap marker tidak diberi label nama tempat (argumen False)
+bp.drawMap(destPointList, labels, False, sys.argv[4])
 
